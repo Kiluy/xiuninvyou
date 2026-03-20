@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { apiFetch } from '../utils/api'
 
 const router = useRouter()
 const username = ref('')
 const password = ref('')
 
 async function submit(mode: 'login' | 'register') {
-  const res = await fetch(`http://localhost:8080/api/auth/${mode}`, {
+  const res = await apiFetch(`http://localhost:8080/api/auth/${mode}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: username.value, password: password.value })
   })
-  if (!res.ok) {
-    alert('登录失败，请检查账号密码')
-    return
-  }
+  if (!res.ok) return
   const json = await res.json()
   localStorage.setItem('token', json.token)
   localStorage.setItem('username', json.username)
