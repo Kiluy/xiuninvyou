@@ -50,4 +50,4 @@ npm run dev
 - 图片资产 `GET /api/assets/{sessionId}`
 - 语音 `POST /api/voice/asr`
 
-> 除 `/api/auth/*` 外，其它业务接口通过 `X-User-Id` 识别用户。
+> 除 `/api/auth/*` 外，其它业务接口通过 `Authorization: Bearer <token>` 鉴权。

@@ -1,9 +1,8 @@
 package com.xiuninvyou.backend.profile;
 
-import com.xiuninvyou.backend.auth.UserHeader;
+import com.xiuninvyou.backend.security.UserContext;
 import com.xiuninvyou.backend.model.AiProfile;
 import com.xiuninvyou.backend.repo.AiProfileRepo;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,22 +17,22 @@ public class ProfileController {
     }
 
     @GetMapping
-    public List<AiProfile> list(HttpServletRequest request) {
-        Long userId = UserHeader.requireUserId(request);
+    public List<AiProfile> list() {
+        Long userId = UserContext.requireUserId();
         return repo.findByUserId(userId);
     }
 
     @PostMapping
-    public AiProfile create(HttpServletRequest request, @RequestBody AiProfile payload) {
-        Long userId = UserHeader.requireUserId(request);
+    public AiProfile create(@RequestBody AiProfile payload) {
+        Long userId = UserContext.requireUserId();
         payload.setId(null);
         payload.setUserId(userId);
         return repo.save(payload);
     }
 
     @PutMapping("/{id}")
-    public AiProfile update(HttpServletRequest request, @PathVariable Long id, @RequestBody AiProfile payload) {
-        Long userId = UserHeader.requireUserId(request);
+    public AiProfile update(@PathVariable Long id, @RequestBody AiProfile payload) {
+        Long userId = UserContext.requireUserId();
         payload.setId(id);
         payload.setUserId(userId);
         return repo.save(payload);

@@ -1,9 +1,8 @@
 package com.xiuninvyou.backend.memory;
 
-import com.xiuninvyou.backend.auth.UserHeader;
+import com.xiuninvyou.backend.security.UserContext;
 import com.xiuninvyou.backend.model.MemoryVault;
 import com.xiuninvyou.backend.repo.MemoryVaultRepo;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,14 +17,14 @@ public class MemoryController {
     }
 
     @GetMapping
-    public List<MemoryVault> list(HttpServletRequest request) {
-        Long userId = UserHeader.requireUserId(request);
+    public List<MemoryVault> list() {
+        Long userId = UserContext.requireUserId();
         return repo.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @PostMapping
-    public MemoryVault create(HttpServletRequest request, @RequestBody MemoryVault payload) {
-        Long userId = UserHeader.requireUserId(request);
+    public MemoryVault create(@RequestBody MemoryVault payload) {
+        Long userId = UserContext.requireUserId();
         payload.setId(null);
         payload.setUserId(userId);
         return repo.save(payload);

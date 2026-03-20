@@ -1,6 +1,6 @@
 package com.xiuninvyou.backend.chat;
 
-import com.xiuninvyou.backend.auth.UserHeader;
+import com.xiuninvyou.backend.security.UserContext;
 import com.xiuninvyou.backend.llm.LlmService;
 import com.xiuninvyou.backend.model.ChatMessage;
 import com.xiuninvyou.backend.model.ChatSession;
@@ -10,7 +10,6 @@ import com.xiuninvyou.backend.repo.ChatMessageRepo;
 import com.xiuninvyou.backend.repo.ChatSessionRepo;
 import com.xiuninvyou.backend.repo.GeneratedAssetRepo;
 import com.xiuninvyou.backend.repo.SystemConfigRepo;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -45,8 +44,8 @@ public class ChatController {
     record SendMessageRequest(Long sessionId, @NotBlank String content) {}
 
     @PostMapping("/sessions")
-    public ChatSession createSession(HttpServletRequest httpRequest, @RequestBody CreateSessionRequest request) {
-        Long userId = UserHeader.requireUserId(httpRequest);
+    public ChatSession createSession(@RequestBody CreateSessionRequest request) {
+        Long userId = UserContext.requireUserId();
         ChatSession s = new ChatSession();
         s.setUserId(userId);
         s.setTitle(request.title());
@@ -54,16 +53,16 @@ public class ChatController {
     }
 
     @GetMapping("/sessions/{sessionId}/messages")
-    public List<ChatMessage> listMessages(HttpServletRequest httpRequest, @PathVariable Long sessionId) {
-        Long userId = UserHeader.requireUserId(httpRequest);
+    public List<ChatMessage> listMessages(@PathVariable Long sessionId) {
+        Long userId = UserContext.requireUserId();
         ChatSession session = chatSessionRepo.findById(sessionId).orElseThrow();
         if (!userId.equals(session.getUserId())) throw new IllegalArgumentException("无权限访问会话");
         return chatMessageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
     }
 
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamReply(HttpServletRequest httpRequest, @RequestBody SendMessageRequest request) {
-        Long userId = UserHeader.requireUserId(httpRequest);
+    public SseEmitter streamReply(@RequestBody SendMessageRequest request) {
+        Long userId = UserContext.requireUserId();
         ChatSession session = chatSessionRepo.findById(request.sessionId())
                 .orElseThrow(() -> new IllegalArgumentException("session not found"));
         if (!userId.equals(session.getUserId())) throw new IllegalArgumentException("无权限访问会话");

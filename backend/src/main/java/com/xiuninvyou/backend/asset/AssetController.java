@@ -1,9 +1,8 @@
 package com.xiuninvyou.backend.asset;
 
-import com.xiuninvyou.backend.auth.UserHeader;
+import com.xiuninvyou.backend.security.UserContext;
 import com.xiuninvyou.backend.model.GeneratedAsset;
 import com.xiuninvyou.backend.repo.GeneratedAssetRepo;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -19,14 +18,14 @@ public class AssetController {
     }
 
     @GetMapping("/{sessionId}")
-    public List<GeneratedAsset> list(HttpServletRequest request, @PathVariable Long sessionId) {
-        Long userId = UserHeader.requireUserId(request);
+    public List<GeneratedAsset> list(@PathVariable Long sessionId) {
+        Long userId = UserContext.requireUserId();
         return repo.findByUserIdAndSessionIdOrderByCreatedAtDesc(userId, sessionId);
     }
 
     @PostMapping("/generate")
-    public GeneratedAsset generate(HttpServletRequest request, @RequestBody GenerateRequest req) {
-        Long userId = UserHeader.requireUserId(request);
+    public GeneratedAsset generate(@RequestBody GenerateRequest req) {
+        Long userId = UserContext.requireUserId();
         GeneratedAsset asset = new GeneratedAsset();
         asset.setUserId(userId);
         asset.setSessionId(req.sessionId());

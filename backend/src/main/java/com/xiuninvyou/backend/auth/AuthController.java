@@ -2,6 +2,7 @@ package com.xiuninvyou.backend.auth;
 
 import com.xiuninvyou.backend.model.AppUser;
 import com.xiuninvyou.backend.repo.UserRepo;
+import com.xiuninvyou.backend.security.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +14,12 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final UserRepo userRepo;
+    private final JwtService jwtService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public AuthController(UserRepo userRepo) {
+    public AuthController(UserRepo userRepo, JwtService jwtService) {
         this.userRepo = userRepo;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -28,7 +31,8 @@ public class AuthController {
         u.setUsername(req.username());
         u.setPasswordHash(encoder.encode(req.password()));
         u = userRepo.save(u);
-        return Map.of("userId", u.getId(), "username", u.getUsername());
+        String token = jwtService.createToken(u.getId(), u.getUsername());
+        return Map.of("userId", u.getId(), "username", u.getUsername(), "token", token);
     }
 
     @PostMapping("/login")
@@ -38,7 +42,8 @@ public class AuthController {
         if (!encoder.matches(req.password(), u.getPasswordHash())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "账号或密码错误");
         }
-        return Map.of("userId", u.getId(), "username", u.getUsername());
+        String token = jwtService.createToken(u.getId(), u.getUsername());
+        return Map.of("userId", u.getId(), "username", u.getUsername(), "token", token);
     }
 
     record AuthRequest(String username, String password) {}

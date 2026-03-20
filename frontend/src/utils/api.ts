@@ -1,11 +1,11 @@
 export function userHeaders(extra: Record<string, string> = {}) {
-  const userId = localStorage.getItem('userId') || ''
+  const token = localStorage.getItem('token') || ''
   return {
     ...extra,
-    'X-User-Id': userId
+    Authorization: token ? `Bearer ${token}` : ''
   }
 }
 
 export function requireLogin() {
-  return !!localStorage.getItem('userId')
+  return !!localStorage.getItem('token')
 }

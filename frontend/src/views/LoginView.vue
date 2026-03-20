@@ -17,7 +17,7 @@ async function submit(mode: 'login' | 'register') {
     return
   }
   const json = await res.json()
-  localStorage.setItem('userId', String(json.userId))
+  localStorage.setItem('token', json.token)
   localStorage.setItem('username', json.username)
   router.push('/chat')
 }
