@@ -43,6 +43,13 @@ const draftProfile = ref<Profile>({
 const memoryItems = ref<{ id?: number; category: string; content: string }[]>([])
 const draftMemory = ref({ category: '喜好', content: '' })
 
+const audits = ref<Array<{ id:number; method:string; path:string; status:number; userId:number|null; costMs:number; createdAt:string }>>([])
+
+async function loadAudit(){
+  const res = await apiFetch('http://localhost:8080/api/audit?limit=50')
+  audits.value = await res.json()
+}
+
 async function loadAll() {
   const [cfg, ps, ms] = await Promise.all([
     apiFetch('http://localhost:8080/api/admin/config').then(r => r.json()),
@@ -54,7 +61,10 @@ async function loadAll() {
   memoryItems.value = ms
 }
 
-onMounted(loadAll)
+onMounted(async () => {
+  await loadAll()
+  await loadAudit()
+})
 
 async function saveConfig() {
   await apiFetch('http://localhost:8080/api/admin/config', {
@@ -125,6 +135,14 @@ async function addMemory() {
       <ul>
         <li v-for="m in memoryItems" :key="m.id">【{{ m.category }}】{{ m.content }}</li>
       </ul>
+
+      <h3>审计日志（最近 50 条）</h3>
+      <button @click="loadAudit">刷新审计</button>
+      <div class="audit-list">
+        <div class="audit-item" v-for="a in audits" :key="a.id">
+          [{{ a.status }}] {{ a.method }} {{ a.path }} · user={{ a.userId ?? 'guest' }} · {{ a.costMs }}ms
+        </div>
+      </div>
     </section>
   </main>
 </template>
@@ -137,4 +155,6 @@ button { width: fit-content; border: none; border-radius: 10px; color: #fff; bac
 .danger { margin-left: 8px; background: #c94a66; }
 ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 li { background: rgba(255,255,255,.08); padding: 8px 10px; border-radius: 8px; }
+.audit-list{display:grid; gap:6px; max-height:220px; overflow:auto;}
+.audit-item{font-size:12px; background:rgba(255,255,255,.06); padding:6px 8px; border-radius:6px;}
 </style>

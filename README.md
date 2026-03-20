@@ -50,5 +50,6 @@ npm run dev
 - 记忆金库 `GET/POST/DELETE /api/memory`
 - 图片资产 `GET /api/assets/{sessionId}`
 - 语音 `POST /api/voice/asr`
+- 审计日志 `GET /api/audit`
 
 > 除 `/api/auth/*` 外，其它业务接口通过 `Authorization: Bearer <token>` 鉴权。
