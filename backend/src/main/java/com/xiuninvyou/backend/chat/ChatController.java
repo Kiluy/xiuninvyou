@@ -55,17 +55,15 @@ public class ChatController {
     @GetMapping("/sessions/{sessionId}/messages")
     public List<ChatMessage> listMessages(@PathVariable Long sessionId) {
         Long userId = UserContext.requireUserId();
-        ChatSession session = chatSessionRepo.findById(sessionId).orElseThrow();
-        if (!userId.equals(session.getUserId())) throw new IllegalArgumentException("无权限访问会话");
+        ChatSession session = chatSessionRepo.findByIdAndUserId(sessionId, userId).orElseThrow(() -> new IllegalArgumentException("无权限访问会话"));
         return chatMessageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
     }
 
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamReply(@RequestBody SendMessageRequest request) {
         Long userId = UserContext.requireUserId();
-        ChatSession session = chatSessionRepo.findById(request.sessionId())
-                .orElseThrow(() -> new IllegalArgumentException("session not found"));
-        if (!userId.equals(session.getUserId())) throw new IllegalArgumentException("无权限访问会话");
+        ChatSession session = chatSessionRepo.findByIdAndUserId(request.sessionId(), userId)
+                .orElseThrow(() -> new IllegalArgumentException("无权限访问会话"));
 
         Instant now = Instant.now();
         ChatMessage userMessage = new ChatMessage();

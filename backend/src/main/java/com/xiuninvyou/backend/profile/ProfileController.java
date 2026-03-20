@@ -3,7 +3,9 @@ package com.xiuninvyou.backend.profile;
 import com.xiuninvyou.backend.security.UserContext;
 import com.xiuninvyou.backend.model.AiProfile;
 import com.xiuninvyou.backend.repo.AiProfileRepo;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -33,6 +35,7 @@ public class ProfileController {
     @PutMapping("/{id}")
     public AiProfile update(@PathVariable Long id, @RequestBody AiProfile payload) {
         Long userId = UserContext.requireUserId();
+        repo.findByIdAndUserId(id, userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         payload.setId(id);
         payload.setUserId(userId);
         return repo.save(payload);
@@ -40,6 +43,8 @@ public class ProfileController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        repo.deleteById(id);
+        Long userId = UserContext.requireUserId();
+        AiProfile profile = repo.findByIdAndUserId(id, userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        repo.delete(profile);
     }
 }

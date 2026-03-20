@@ -3,7 +3,9 @@ package com.xiuninvyou.backend.memory;
 import com.xiuninvyou.backend.security.UserContext;
 import com.xiuninvyou.backend.model.MemoryVault;
 import com.xiuninvyou.backend.repo.MemoryVaultRepo;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -32,6 +34,8 @@ public class MemoryController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        repo.deleteById(id);
+        Long userId = UserContext.requireUserId();
+        MemoryVault m = repo.findByIdAndUserId(id, userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        repo.delete(m);
     }
 }
