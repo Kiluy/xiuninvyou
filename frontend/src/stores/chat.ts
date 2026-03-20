@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { ChatMessage, ChatSession } from '../types/chat'
+import type { ChatMessage, ChatSession, GeneratedAsset } from '../types/chat'
 
 const API = 'http://localhost:8080/api'
 
@@ -8,6 +8,7 @@ export const useChatStore = defineStore('chat', {
     session: null as ChatSession | null,
     sessions: [] as ChatSession[],
     messages: [] as ChatMessage[],
+    assets: [] as GeneratedAsset[],
     loading: false
   }),
   actions: {
@@ -30,8 +31,12 @@ export const useChatStore = defineStore('chat', {
       this.sessions.unshift(this.session)
     },
     async loadMessages(sessionId: number) {
-      const res = await fetch(`${API}/chat/sessions/${sessionId}/messages`)
-      this.messages = await res.json()
+      const [msgRes, assetRes] = await Promise.all([
+        fetch(`${API}/chat/sessions/${sessionId}/messages`),
+        fetch(`${API}/assets/${sessionId}`)
+      ])
+      this.messages = await msgRes.json()
+      this.assets = await assetRes.json()
     },
     async selectSession(s: ChatSession) {
       this.session = s
@@ -71,6 +76,7 @@ export const useChatStore = defineStore('chat', {
       }
       this.loading = false
       await this.loadSessions()
+      if (this.session) await this.loadMessages(this.session.id)
     }
   }
 })

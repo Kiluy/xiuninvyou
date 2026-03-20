@@ -9,3 +9,11 @@ export interface ChatMessage {
   type?: string
   content: string
 }
+
+export interface GeneratedAsset {
+  id?: number
+  sessionId: number
+  type: 'image'
+  assetUrl: string
+  prompt?: string
+}

@@ -61,6 +61,12 @@ npm run dev
   - `GET /api/memory`
   - `POST /api/memory`
   - `DELETE /api/memory/{id}`
+- 图片资产
+  - `GET /api/assets/{sessionId}`
+  - `POST /api/assets/generate`
+- 语音
+  - `POST /api/voice/asr`
+  - `POST /api/voice/tts`
 
 ## 真实模型接入说明
 
@@ -74,7 +80,7 @@ npm run dev
 
 ## 下一步（我可以继续直接做）
 
-1. 加入 ASR / TTS 链路
-2. 增加图片生成功能与消息插入
-3. 主动消息推送（定时任务）
-4. 增加鉴权与多用户
+1. 接入真实第三方 ASR / TTS 服务（替换占位接口）
+2. 接入真实图像生成供应商（Leonardo / SeaArt）
+3. 增加鉴权与多用户
+4. 会话与记忆的权限隔离
