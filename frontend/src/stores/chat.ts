@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { ChatMessage, ChatSession, GeneratedAsset } from '../types/chat'
-import { userHeaders } from '../utils/api'
+import { apiFetch } from '../utils/api'
 
 const API = 'http://localhost:8080/api'
 
@@ -14,7 +14,7 @@ export const useChatStore = defineStore('chat', {
   }),
   actions: {
     async loadSessions() {
-      const res = await fetch(`${API}/sessions`, { headers: userHeaders() })
+      const res = await apiFetch(`${API}/sessions`)
       this.sessions = await res.json()
       if (!this.session && this.sessions.length > 0) {
         this.session = this.sessions[0]
@@ -23,9 +23,9 @@ export const useChatStore = defineStore('chat', {
     },
     async ensureSession() {
       if (this.session) return
-      const res = await fetch(`${API}/chat/sessions`, {
+      const res = await apiFetch(`${API}/chat/sessions`, {
         method: 'POST',
-        headers: userHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: `会话 ${new Date().toLocaleTimeString()}` })
       })
       this.session = await res.json()
@@ -33,8 +33,8 @@ export const useChatStore = defineStore('chat', {
     },
     async loadMessages(sessionId: number) {
       const [msgRes, assetRes] = await Promise.all([
-        fetch(`${API}/chat/sessions/${sessionId}/messages`, { headers: userHeaders() }),
-        fetch(`${API}/assets/${sessionId}`, { headers: userHeaders() })
+        apiFetch(`${API}/chat/sessions/${sessionId}/messages`),
+        apiFetch(`${API}/assets/${sessionId}`)
       ])
       this.messages = await msgRes.json()
       this.assets = await assetRes.json()
@@ -51,9 +51,9 @@ export const useChatStore = defineStore('chat', {
       const assistant = this.messages[this.messages.length - 1]
       this.loading = true
 
-      const res = await fetch(`${API}/chat/stream`, {
+      const res = await apiFetch(`${API}/chat/stream`, {
         method: 'POST',
-        headers: userHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId: this.session?.id, content })
       })
 
