@@ -1,61 +1,70 @@
-# xiuninvyou · AI Companion MVP
+# xiuninvyou · AI Companion
 
-这是根据 PRD 落地的第一版可运行实现（前后端 + MySQL + SSE 流式聊天 + 隐藏后台入口）。
+这是基于你提供 PRD 的持续落地版本（前后端 + MySQL）。
 
-## 当前已实现
+## 已落地能力（当前）
 
-- Vue 3 + TypeScript 前端聊天页（毛玻璃风格、移动端响应式）
-- 隐藏指令 `/sudo-admin-777` 进入后台配置页
-- Spring Boot 3 后端 API
-- MySQL 持久化（会话、消息、系统配置）
-- SSE 流式回复（当前为 mock 文本流，预留接入真实 LLM）
-- 规范化 DDL 脚本与 `docker-compose` 本地启动 MySQL
+- 聊天页（Vue3 + TS + 毛玻璃 + 移动端适配）
+- 多会话列表与切换
+- 隐藏后台入口：`/sudo-admin-777`
+- 后台系统配置管理
+- AI 角色（Profile）管理：增删查
+- 记忆金库（Memory Vault）管理：增删查
+- Spring Boot 3 API + MySQL 持久化
+- SSE 流式回复（当前为 mock，可替换真实 LLM）
 
-## 目录结构
+## 目录
 
-- `frontend/`：Vue 3 应用
-- `backend/`：Spring Boot 3 服务
-- `db/schema.sql`：数据库表结构
-- `docs/REQUIREMENTS.md`：完整需求文档
+- `frontend/` 前端工程
+- `backend/` 后端工程
+- `db/schema.sql` 数据库建表
+- `docs/REQUIREMENTS.md` 完整需求文档
 
-## 本地运行
-
-### 1) 启动 MySQL
+## 本地启动
 
 ```bash
+# 1) MySQL
 docker compose up -d mysql
-```
 
-### 2) 启动后端
-
-```bash
+# 2) Backend
 cd backend
 mvn spring-boot:run
-```
 
-后端默认地址：`http://localhost:8080`
-
-### 3) 启动前端
-
-```bash
+# 3) Frontend
 cd frontend
 npm install
 npm run dev
 ```
 
-前端默认地址：`http://localhost:5173`
+- 前端：`http://localhost:5173`
+- 后端：`http://localhost:8080`
 
-## 主要接口
+## API（核心）
 
-- `POST /api/chat/sessions` 创建会话
-- `GET /api/chat/sessions/{id}/messages` 查询消息
-- `POST /api/chat/stream` SSE 流式回复
-- `GET /api/admin/config` 获取系统配置
-- `PUT /api/admin/config` 更新系统配置
+- 聊天
+  - `POST /api/chat/sessions`
+  - `GET /api/chat/sessions/{id}/messages`
+  - `POST /api/chat/stream`
+- 会话管理
+  - `GET /api/sessions`
+  - `PUT /api/sessions/{id}/title`
+  - `DELETE /api/sessions/{id}`
+- 系统配置
+  - `GET /api/admin/config`
+  - `PUT /api/admin/config`
+- 角色管理
+  - `GET /api/profiles`
+  - `POST /api/profiles`
+  - `PUT /api/profiles/{id}`
+  - `DELETE /api/profiles/{id}`
+- 记忆金库
+  - `GET /api/memory`
+  - `POST /api/memory`
+  - `DELETE /api/memory/{id}`
 
-## 下一步建议
+## 下一步（我可以继续直接做）
 
-1. 接入真实 LLM（DeepSeek / Kimi / Gemini / OpenAI 兼容）
-2. 增加 AI Profile（多角色）数据模型
-3. 增加用户体系、权限与 API Key 安全存储
-4. 扩展 ASR / TTS 与图片生成链路
+1. 接入真实 LLM（DeepSeek / OpenAI 兼容）
+2. 加入 ASR / TTS 链路
+3. 增加图片生成功能与消息插入
+4. 主动消息推送（定时任务）

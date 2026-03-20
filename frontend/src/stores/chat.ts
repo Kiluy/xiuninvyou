@@ -6,18 +6,36 @@ const API = 'http://localhost:8080/api'
 export const useChatStore = defineStore('chat', {
   state: () => ({
     session: null as ChatSession | null,
+    sessions: [] as ChatSession[],
     messages: [] as ChatMessage[],
     loading: false
   }),
   actions: {
+    async loadSessions() {
+      const res = await fetch(`${API}/sessions`)
+      this.sessions = await res.json()
+      if (!this.session && this.sessions.length > 0) {
+        this.session = this.sessions[0]
+        await this.loadMessages(this.session.id)
+      }
+    },
     async ensureSession() {
       if (this.session) return
       const res = await fetch(`${API}/chat/sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: '默认会话' })
+        body: JSON.stringify({ title: `会话 ${new Date().toLocaleTimeString()}` })
       })
       this.session = await res.json()
+      this.sessions.unshift(this.session)
+    },
+    async loadMessages(sessionId: number) {
+      const res = await fetch(`${API}/chat/sessions/${sessionId}/messages`)
+      this.messages = await res.json()
+    },
+    async selectSession(s: ChatSession) {
+      this.session = s
+      await this.loadMessages(s.id)
     },
     async send(content: string) {
       if (!content.trim()) return
@@ -52,6 +70,7 @@ export const useChatStore = defineStore('chat', {
         }
       }
       this.loading = false
+      await this.loadSessions()
     }
   }
 })

@@ -10,6 +10,16 @@ CREATE TABLE IF NOT EXISTS system_config (
   admin_command VARCHAR(64) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS ai_profiles (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  display_name VARCHAR(128) NOT NULL,
+  nickname VARCHAR(128) NOT NULL,
+  system_prompt TEXT,
+  model_provider VARCHAR(64) NOT NULL,
+  model_name VARCHAR(128) NOT NULL,
+  temperature DOUBLE NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS chat_sessions (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(255) NOT NULL,
@@ -25,4 +35,11 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   content TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_chat_msg_session FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS memory_vault (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  category VARCHAR(64) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
