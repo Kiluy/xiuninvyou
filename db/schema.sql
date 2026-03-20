@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS system_config (
   model_name VARCHAR(128) NOT NULL,
   temperature DOUBLE NOT NULL,
   system_prompt TEXT,
+  api_base_url VARCHAR(255),
+  api_key TEXT,
   admin_command VARCHAR(64) NOT NULL
 );
 

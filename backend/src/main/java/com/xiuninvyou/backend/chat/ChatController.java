@@ -1,9 +1,12 @@
 package com.xiuninvyou.backend.chat;
 
+import com.xiuninvyou.backend.llm.LlmService;
 import com.xiuninvyou.backend.model.ChatMessage;
 import com.xiuninvyou.backend.model.ChatSession;
+import com.xiuninvyou.backend.model.SystemConfig;
 import com.xiuninvyou.backend.repo.ChatMessageRepo;
 import com.xiuninvyou.backend.repo.ChatSessionRepo;
+import com.xiuninvyou.backend.repo.SystemConfigRepo;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +23,15 @@ import java.util.concurrent.Executors;
 public class ChatController {
     private final ChatSessionRepo chatSessionRepo;
     private final ChatMessageRepo chatMessageRepo;
+    private final SystemConfigRepo systemConfigRepo;
+    private final LlmService llmService;
 
-    public ChatController(ChatSessionRepo chatSessionRepo, ChatMessageRepo chatMessageRepo) {
+    public ChatController(ChatSessionRepo chatSessionRepo, ChatMessageRepo chatMessageRepo,
+                          SystemConfigRepo systemConfigRepo, LlmService llmService) {
         this.chatSessionRepo = chatSessionRepo;
         this.chatMessageRepo = chatMessageRepo;
+        this.systemConfigRepo = systemConfigRepo;
+        this.llmService = llmService;
     }
 
     record CreateSessionRequest(@NotBlank String title) {}
@@ -56,23 +64,22 @@ public class ChatController {
         SseEmitter emitter = new SseEmitter(0L);
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
-                String mock = "我收到了：" + request.content() + "。这是第一版落地实现，后续可接入真实大模型。";
-                String[] tokens = mock.split("");
-                StringBuilder full = new StringBuilder();
-                for (String t : tokens) {
-                    full.append(t);
+                SystemConfig cfg = systemConfigRepo.findById(1L).orElseGet(SystemConfig::new);
+                String fullText = llmService.chat(cfg, request.content());
+
+                for (String t : fullText.split("")) {
                     emitter.send(SseEmitter.event().name("delta").data(Map.of("text", t)));
-                    Thread.sleep(25);
+                    Thread.sleep(20);
                 }
 
                 ChatMessage assistantMessage = new ChatMessage();
                 assistantMessage.setSession(session);
                 assistantMessage.setRole("assistant");
-                assistantMessage.setContent(full.toString());
+                assistantMessage.setContent(fullText);
                 assistantMessage.setCreatedAt(Instant.now());
                 chatMessageRepo.save(assistantMessage);
 
-                emitter.send(SseEmitter.event().name("done").data(Map.of("text", full.toString())));
+                emitter.send(SseEmitter.event().name("done").data(Map.of("text", fullText)));
                 emitter.complete();
             } catch (IOException | InterruptedException e) {
                 emitter.completeWithError(e);

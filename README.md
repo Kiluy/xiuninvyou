@@ -11,7 +11,7 @@
 - AI 角色（Profile）管理：增删查
 - 记忆金库（Memory Vault）管理：增删查
 - Spring Boot 3 API + MySQL 持久化
-- SSE 流式回复（当前为 mock，可替换真实 LLM）
+- SSE 流式回复（已支持 OpenAI-Compatible 真实 LLM，未配置 key 时自动回退 mock）
 
 ## 目录
 
@@ -62,9 +62,19 @@ npm run dev
   - `POST /api/memory`
   - `DELETE /api/memory/{id}`
 
+## 真实模型接入说明
+
+在后台 `/admin` 配置：
+
+- `API Base URL`（例如 `https://api.deepseek.com` 或 OpenAI 兼容网关）
+- `API Key`
+- `modelName`（例如 `deepseek-chat`）
+
+保存后聊天将调用真实模型；未配置 API Key 时自动使用本地回退回复。
+
 ## 下一步（我可以继续直接做）
 
-1. 接入真实 LLM（DeepSeek / OpenAI 兼容）
-2. 加入 ASR / TTS 链路
-3. 增加图片生成功能与消息插入
-4. 主动消息推送（定时任务）
+1. 加入 ASR / TTS 链路
+2. 增加图片生成功能与消息插入
+3. 主动消息推送（定时任务）
+4. 增加鉴权与多用户

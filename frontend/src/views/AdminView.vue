@@ -16,6 +16,8 @@ const form = ref({
   modelName: 'deepseek-chat',
   temperature: 0.8,
   systemPrompt: '',
+  apiBaseUrl: 'https://api.openai.com',
+  apiKey: '',
   adminCommand: '/sudo-admin-777'
 })
 
@@ -89,6 +91,8 @@ async function addMemory() {
       <label>模型服务商 <input v-model="form.modelProvider" /></label>
       <label>模型名称 <input v-model="form.modelName" /></label>
       <label>Temperature <input v-model.number="form.temperature" type="number" step="0.1" min="0" max="2" /></label>
+      <label>API Base URL <input v-model="form.apiBaseUrl" /></label>
+      <label>API Key <input v-model="form.apiKey" type="password" /></label>
       <label>隐藏口令 <input v-model="form.adminCommand" /></label>
       <label>System Prompt <textarea v-model="form.systemPrompt" rows="4"></textarea></label>
       <button @click="saveConfig">保存系统配置</button>
