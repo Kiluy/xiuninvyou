@@ -2,9 +2,14 @@
 import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useChatStore } from '../stores/chat'
-import { userHeaders } from '../utils/api'
+import { userHeaders, logout } from '../utils/api'
 
 const router = useRouter()
+
+function doLogout() {
+  logout()
+  router.push('/login')
+}
 const chat = useChatStore()
 const input = ref('')
 const listRef = ref<HTMLElement | null>(null)
@@ -72,7 +77,7 @@ async function toggleRecord() {
       </aside>
 
       <section class="chat">
-        <header class="chat-header">💗 AI 虚拟伴侣</header>
+        <header class="chat-header">💗 AI 虚拟伴侣 <button class="logout" @click="doLogout">退出</button></header>
         <div ref="listRef" class="msg-list">
           <div v-for="(asset, idx) in chat.assets" :key="`asset-${idx}`" class="asset-card">
             <img :src="asset.assetUrl" alt="scene" />
@@ -100,7 +105,8 @@ async function toggleRecord() {
 .session-item { padding: 8px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,.08); }
 .session-item.active { background: rgba(122,141,255,.55); }
 .chat { display: grid; grid-template-rows: auto 1fr auto; }
-.chat-header { padding: 16px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.2); }
+.chat-header { padding: 16px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.2); display:flex; justify-content:space-between; align-items:center; }
+.logout{background:#c94a66;}
 .msg-list { padding: 16px; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
 .asset-card { background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px; }
 .asset-card img { width: 100%; border-radius: 8px; max-height: 220px; object-fit: cover; }

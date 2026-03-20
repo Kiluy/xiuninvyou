@@ -3,6 +3,7 @@ package com.xiuninvyou.backend.auth;
 import com.xiuninvyou.backend.model.AppUser;
 import com.xiuninvyou.backend.repo.UserRepo;
 import com.xiuninvyou.backend.security.JwtService;
+import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,16 @@ public class AuthController {
         }
         String token = jwtService.createToken(u.getId(), u.getUsername());
         return Map.of("userId", u.getId(), "username", u.getUsername(), "token", token);
+    }
+
+    @PostMapping("/refresh")
+    public Map<String, Object> refresh(@RequestBody Map<String, String> payload) {
+        String token = payload.getOrDefault("token", "");
+        Claims claims = jwtService.parse(token);
+        Long userId = Long.parseLong(claims.getSubject());
+        String username = String.valueOf(claims.get("username"));
+        String newToken = jwtService.createToken(userId, username);
+        return Map.of("token", newToken, "userId", userId, "username", username);
     }
 
     record AuthRequest(String username, String password) {}

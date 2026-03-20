@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { userHeaders } from '../utils/api'
+import { userHeaders, logout } from '../utils/api'
+import { useRouter } from 'vue-router'
 
 type Profile = {
   id?: number
@@ -10,6 +11,13 @@ type Profile = {
   modelProvider: string
   modelName: string
   temperature: number
+}
+
+const router = useRouter()
+
+function doLogout(){
+  logout()
+  router.push('/login')
 }
 
 const form = ref({
@@ -86,7 +94,7 @@ async function addMemory() {
 <template>
   <main class="page">
     <section class="panel admin">
-      <h2>隐藏后台配置</h2>
+      <h2>隐藏后台配置 <button class="danger" @click="doLogout">退出</button></h2>
 
       <h3>系统配置</h3>
       <label>模型服务商 <input v-model="form.modelProvider" /></label>

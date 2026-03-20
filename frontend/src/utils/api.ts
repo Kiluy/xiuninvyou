@@ -9,3 +9,8 @@ export function userHeaders(extra: Record<string, string> = {}) {
 export function requireLogin() {
   return !!localStorage.getItem('token')
 }
+
+export function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('username')
+}

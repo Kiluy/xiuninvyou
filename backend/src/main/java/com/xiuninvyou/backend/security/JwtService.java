@@ -3,6 +3,7 @@ package com.xiuninvyou.backend.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -12,8 +13,16 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    private static final String SECRET = "xiuninvyou-super-secret-key-at-least-32-bytes-long";
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    private final SecretKey key;
+    private final long expireSeconds;
+
+    public JwtService(
+            @Value("${app.jwt.secret:xiuninvyou-super-secret-key-at-least-32-bytes-long}") String secret,
+            @Value("${app.jwt.expire-seconds:604800}") long expireSeconds
+    ) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expireSeconds = expireSeconds;
+    }
 
     public String createToken(Long userId, String username) {
         Instant now = Instant.now();
@@ -21,7 +30,7 @@ public class JwtService {
                 .subject(String.valueOf(userId))
                 .claim("username", username)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(60L * 60 * 24 * 7)))
+                .expiration(Date.from(now.plusSeconds(expireSeconds)))
                 .signWith(key)
                 .compact();
     }
