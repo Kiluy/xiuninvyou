@@ -1,0 +1,28 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #f4f6ff;
+  background: #0d1129;
+}
+
+* { box-sizing: border-box; }
+body, html, #app { margin: 0; min-height: 100%; }
+
+.page {
+  min-height: 100vh;
+  padding: 16px;
+  background: radial-gradient(circle at top, #213b8f, #0d1129 60%);
+}
+
+.panel {
+  max-width: 960px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 768px) {
+  .page { padding: 8px; }
+}

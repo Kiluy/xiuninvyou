@@ -1,0 +1,12 @@
+com/xiuninvyou/backend/model/ChatMessage.class
+com/xiuninvyou/backend/chat/ChatController$CreateSessionRequest.class
+com/xiuninvyou/backend/config/WebConfig.class
+com/xiuninvyou/backend/chat/ChatController$SendMessageRequest.class
+com/xiuninvyou/backend/repo/SystemConfigRepo.class
+com/xiuninvyou/backend/Application.class
+com/xiuninvyou/backend/admin/AdminController.class
+com/xiuninvyou/backend/model/SystemConfig.class
+com/xiuninvyou/backend/repo/ChatSessionRepo.class
+com/xiuninvyou/backend/repo/ChatMessageRepo.class
+com/xiuninvyou/backend/model/ChatSession.class
+com/xiuninvyou/backend/chat/ChatController.class

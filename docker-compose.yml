@@ -1,0 +1,12 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ai_companion_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ai_companion
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
