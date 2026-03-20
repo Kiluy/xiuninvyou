@@ -2,6 +2,7 @@
 import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useChatStore } from '../stores/chat'
+import { userHeaders } from '../utils/api'
 
 const router = useRouter()
 const chat = useChatStore()
@@ -46,7 +47,7 @@ async function toggleRecord() {
       const blob = new Blob(chunks, { type: 'audio/webm' })
       const fd = new FormData()
       fd.append('file', blob, 'voice.webm')
-      const res = await fetch('http://localhost:8080/api/voice/asr', { method: 'POST', body: fd })
+      const res = await fetch('http://localhost:8080/api/voice/asr', { method: 'POST', body: fd, headers: userHeaders() })
       const json = await res.json()
       input.value = json.text || ''
     }

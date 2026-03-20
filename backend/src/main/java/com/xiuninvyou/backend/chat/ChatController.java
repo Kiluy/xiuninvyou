@@ -1,5 +1,6 @@
 package com.xiuninvyou.backend.chat;
 
+import com.xiuninvyou.backend.auth.UserHeader;
 import com.xiuninvyou.backend.llm.LlmService;
 import com.xiuninvyou.backend.model.ChatMessage;
 import com.xiuninvyou.backend.model.ChatSession;
@@ -9,6 +10,7 @@ import com.xiuninvyou.backend.repo.ChatMessageRepo;
 import com.xiuninvyou.backend.repo.ChatSessionRepo;
 import com.xiuninvyou.backend.repo.GeneratedAssetRepo;
 import com.xiuninvyou.backend.repo.SystemConfigRepo;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -43,21 +45,28 @@ public class ChatController {
     record SendMessageRequest(Long sessionId, @NotBlank String content) {}
 
     @PostMapping("/sessions")
-    public ChatSession createSession(@RequestBody CreateSessionRequest request) {
+    public ChatSession createSession(HttpServletRequest httpRequest, @RequestBody CreateSessionRequest request) {
+        Long userId = UserHeader.requireUserId(httpRequest);
         ChatSession s = new ChatSession();
+        s.setUserId(userId);
         s.setTitle(request.title());
         return chatSessionRepo.save(s);
     }
 
     @GetMapping("/sessions/{sessionId}/messages")
-    public List<ChatMessage> listMessages(@PathVariable Long sessionId) {
+    public List<ChatMessage> listMessages(HttpServletRequest httpRequest, @PathVariable Long sessionId) {
+        Long userId = UserHeader.requireUserId(httpRequest);
+        ChatSession session = chatSessionRepo.findById(sessionId).orElseThrow();
+        if (!userId.equals(session.getUserId())) throw new IllegalArgumentException("无权限访问会话");
         return chatMessageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
     }
 
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamReply(@RequestBody SendMessageRequest request) {
+    public SseEmitter streamReply(HttpServletRequest httpRequest, @RequestBody SendMessageRequest request) {
+        Long userId = UserHeader.requireUserId(httpRequest);
         ChatSession session = chatSessionRepo.findById(request.sessionId())
                 .orElseThrow(() -> new IllegalArgumentException("session not found"));
+        if (!userId.equals(session.getUserId())) throw new IllegalArgumentException("无权限访问会话");
 
         Instant now = Instant.now();
         ChatMessage userMessage = new ChatMessage();
@@ -70,7 +79,7 @@ public class ChatController {
         session.setUpdatedAt(now);
         chatSessionRepo.save(session);
 
-        maybeGenerateAsset(session.getId(), request.content());
+        maybeGenerateAsset(userId, session.getId(), request.content());
 
         SseEmitter emitter = new SseEmitter(0L);
         Executors.newSingleThreadExecutor().submit(() -> {
@@ -102,12 +111,13 @@ public class ChatController {
         return emitter;
     }
 
-    private void maybeGenerateAsset(Long sessionId, String content) {
+    private void maybeGenerateAsset(Long userId, Long sessionId, String content) {
         String lower = content.toLowerCase();
         if (!(lower.contains("下雨") || lower.contains("海边") || lower.contains("咖啡") || lower.contains("晚安"))) {
             return;
         }
         GeneratedAsset asset = new GeneratedAsset();
+        asset.setUserId(userId);
         asset.setSessionId(sessionId);
         asset.setPrompt(content);
         asset.setAssetUrl("https://picsum.photos/seed/" + Math.abs(content.hashCode()) + "/720/960");

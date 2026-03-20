@@ -10,6 +10,9 @@ public class MemoryVault {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Column(nullable = false)
     private String category;
 
@@ -20,6 +23,8 @@ public class MemoryVault {
     private Instant createdAt = Instant.now();
 
     public Long getId() { return id; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
     public void setId(Long id) { this.id = id; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }

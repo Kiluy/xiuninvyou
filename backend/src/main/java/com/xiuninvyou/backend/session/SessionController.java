@@ -1,7 +1,9 @@
 package com.xiuninvyou.backend.session;
 
+import com.xiuninvyou.backend.auth.UserHeader;
 import com.xiuninvyou.backend.model.ChatSession;
 import com.xiuninvyou.backend.repo.ChatSessionRepo;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -17,8 +19,9 @@ public class SessionController {
     }
 
     @GetMapping
-    public List<ChatSession> list() {
-        return repo.findAll();
+    public List<ChatSession> list(HttpServletRequest request) {
+        Long userId = UserHeader.requireUserId(request);
+        return repo.findByUserIdOrderByUpdatedAtDesc(userId);
     }
 
     @PutMapping("/{id}/title")

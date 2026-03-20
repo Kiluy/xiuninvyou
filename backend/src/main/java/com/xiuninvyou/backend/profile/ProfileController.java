@@ -1,7 +1,9 @@
 package com.xiuninvyou.backend.profile;
 
+import com.xiuninvyou.backend.auth.UserHeader;
 import com.xiuninvyou.backend.model.AiProfile;
 import com.xiuninvyou.backend.repo.AiProfileRepo;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,19 +18,24 @@ public class ProfileController {
     }
 
     @GetMapping
-    public List<AiProfile> list() {
-        return repo.findAll();
+    public List<AiProfile> list(HttpServletRequest request) {
+        Long userId = UserHeader.requireUserId(request);
+        return repo.findByUserId(userId);
     }
 
     @PostMapping
-    public AiProfile create(@RequestBody AiProfile payload) {
+    public AiProfile create(HttpServletRequest request, @RequestBody AiProfile payload) {
+        Long userId = UserHeader.requireUserId(request);
         payload.setId(null);
+        payload.setUserId(userId);
         return repo.save(payload);
     }
 
     @PutMapping("/{id}")
-    public AiProfile update(@PathVariable Long id, @RequestBody AiProfile payload) {
+    public AiProfile update(HttpServletRequest request, @PathVariable Long id, @RequestBody AiProfile payload) {
+        Long userId = UserHeader.requireUserId(request);
         payload.setId(id);
+        payload.setUserId(userId);
         return repo.save(payload);
     }
 

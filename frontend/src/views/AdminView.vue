@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { userHeaders } from '../utils/api'
 
 type Profile = {
   id?: number
@@ -36,9 +37,9 @@ const draftMemory = ref({ category: '喜好', content: '' })
 
 async function loadAll() {
   const [cfg, ps, ms] = await Promise.all([
-    fetch('http://localhost:8080/api/admin/config').then(r => r.json()),
-    fetch('http://localhost:8080/api/profiles').then(r => r.json()),
-    fetch('http://localhost:8080/api/memory').then(r => r.json())
+    fetch('http://localhost:8080/api/admin/config', { headers: userHeaders() }).then(r => r.json()),
+    fetch('http://localhost:8080/api/profiles', { headers: userHeaders() }).then(r => r.json()),
+    fetch('http://localhost:8080/api/memory', { headers: userHeaders() }).then(r => r.json())
   ])
   form.value = cfg
   profiles.value = ps
@@ -50,7 +51,7 @@ onMounted(loadAll)
 async function saveConfig() {
   await fetch('http://localhost:8080/api/admin/config', {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: userHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(form.value)
   })
   alert('系统配置已保存')
@@ -59,7 +60,7 @@ async function saveConfig() {
 async function addProfile() {
   const res = await fetch('http://localhost:8080/api/profiles', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: userHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(draftProfile.value)
   })
   profiles.value.push(await res.json())
@@ -67,14 +68,14 @@ async function addProfile() {
 
 async function removeProfile(id?: number) {
   if (!id) return
-  await fetch(`http://localhost:8080/api/profiles/${id}`, { method: 'DELETE' })
+  await fetch(`http://localhost:8080/api/profiles/${id}`, { method: 'DELETE', headers: userHeaders() })
   profiles.value = profiles.value.filter(p => p.id !== id)
 }
 
 async function addMemory() {
   const res = await fetch('http://localhost:8080/api/memory', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: userHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(draftMemory.value)
   })
   memoryItems.value.push(await res.json())

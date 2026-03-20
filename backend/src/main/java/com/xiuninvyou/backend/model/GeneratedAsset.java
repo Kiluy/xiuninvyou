@@ -10,6 +10,9 @@ public class GeneratedAsset {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Column(name = "session_id", nullable = false)
     private Long sessionId;
 
@@ -26,6 +29,8 @@ public class GeneratedAsset {
     private Instant createdAt = Instant.now();
 
     public Long getId() { return id; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
     public void setId(Long id) { this.id = id; }
     public Long getSessionId() { return sessionId; }
     public void setSessionId(Long sessionId) { this.sessionId = sessionId; }

@@ -9,6 +9,9 @@ public class AiProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Column(nullable = false)
     private String displayName;
 
@@ -28,6 +31,8 @@ public class AiProfile {
     private Double temperature = 0.8;
 
     public Long getId() { return id; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
     public void setId(Long id) { this.id = id; }
     public String getDisplayName() { return displayName; }
     public void setDisplayName(String displayName) { this.displayName = displayName; }
